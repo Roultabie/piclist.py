@@ -51,8 +51,6 @@ def generate(dirPath="",currentDir="",ariane="",privateBaseList="",dirs=""):
     dirPath = os.path.normpath(dirPath) if dirPath else GALLERY_PATH
     currentDir = currentDir if currentDir else GALLERY_DIR
 
-    print(directory)
-
 def get_content(path):
     with open(path, "r") as content_file:
         return content_file.read()
