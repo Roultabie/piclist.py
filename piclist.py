@@ -24,10 +24,10 @@ args = parser.parse_args()
 
 SCRIPT_PATH = os.path.abspath(__file__)
 
-if os.path.exists(os.path.join(SCRIPT_PATH,"/config.cfg")):
+if os.path.exists(os.path.join(SCRIPT_PATH,"config.cfg")):
     import configparser
     config = ConfigParser.ConfigParser
-    config.read(os.path.join(SCRIPT_PATH,"/config.cfg"))
+    config.read(os.path.join(SCRIPT_PATH,"config.cfg"))
 
 GALLERY_PATH = args.dir if args.dir else os.path.join(SCRIPT_PATH,galleryDir)
 PUBLIC_BASE = args.base.rstrip("/") if args.base else publicBase.rstrip("/")
