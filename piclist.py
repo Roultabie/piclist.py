@@ -7,7 +7,7 @@ imagePattern = "/([^.]+)\.(jpg|png|gif)/Ui"
 galleryDir = "gallery"
 templateDir = "template"
 thumbsDir = "_thumbs"
-thumbsPath = galleryDir + "/" + thumbsDir
+thumbsPath = os.path.join(galleryDir,thumbsDir)
 thumbWidth = [200]
 thumbRatio = [4, 3]
 publicBase = ""
@@ -20,13 +20,17 @@ args = parser.parse_args()
 
 SCRIPT_PATH = os.path.abspath(__file__)
 
-if os.path.exists(SCRIPT_PATH + "/config.cfg"):
+if os.path.exists(os.path.join(SCRIPT_PATH,"/config.cfg")):
     import configparser
     config = ConfigParser.ConfigParser
-    config.read(SCRIPT_PATH + "/config.cfg")
+    config.read(os.path.join(SCRIPT_PATH,"/config.cfg"))
 
-GALLERY_PATH = args.dir if args.dir else SCRIPT_PATH + "/" + galleryDir
+GALLERY_PATH = args.dir if args.dir else os.path.join(SCRIPT_PATH,galleryDir)
 PUBLIC_BASE = args.base.rstrip("/") if args.base else publicBase.rstrip("/")
 GALLERY_DIR = os.path.basename(PUBLIC_BASE) if PUBLIC_BASE else galleryDir
-TEMPLATE_PATH = GALLERY_PATH + "/" + templateDir if os.path.isdir(GALLERY_PATH + "/" + templateDir) else templateDir
+TEMPLATE_PATH = os.path.join(GALLERY_PATH,templateDir) if os.path.isdir(os.path.join(GALLERY_PATH,templateDir)) else templateDir
 
+print(os.path.join(GALLERY_PATH,templateDir))
+
+def generate(dirPath="",currentDir="",ariane="",privateBaseList="",dirs=""):
+    page = ""
