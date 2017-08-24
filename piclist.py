@@ -30,3 +30,9 @@ PUBLIC_BASE = args.base.rstrip("/") if args.base else publicBase.rstrip("/")
 GALLERY_DIR = os.path.basename(PUBLIC_BASE) if PUBLIC_BASE else galleryDir
 TEMPLATE_PATH = os.path.join(GALLERY_PATH,templateDir) if os.path.isdir(os.path.join(GALLERY_PATH,templateDir)) else templateDir
 
+print(os.path.join(GALLERY_PATH,templateDir))
+
+def get_content(path):
+    with open(path, "r") as content_file:
+        content = content_file.read()
+
