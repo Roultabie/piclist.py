@@ -3,7 +3,7 @@ import sys
 import argparse
 import re
 
-imagePattern = "/([^.]+)\.(jpg|png|gif)/Ui"
+imagesAllowed = (".jpg",".png",".gif",)
 galleryDir = "gallery"
 templateDir = "template"
 thumbsDir = "_thumbs"
@@ -11,6 +11,7 @@ thumbsPath = os.path.join(galleryDir,thumbsDir)
 thumbWidth = [200]
 thumbRatio = [4, 3]
 publicBase = ""
+noScan = ()
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--dir", type=str,\
@@ -50,6 +51,31 @@ def generate(dirPath="",currentDir="",ariane="",privateBaseList="",dirs=""):
 
     dirPath = os.path.normpath(dirPath) if dirPath else GALLERY_PATH
     currentDir = currentDir if currentDir else GALLERY_DIR
+
+    if dirPath not GALLERY_PATH:
+        parentDir = directory.replace("{dirUri}","../").replace("{dirName}","..")
+        after = os.path.basename(dirPath)
+
+    """galleryBase = PUBLIC_BASE + after"""
+    galleryBase = os.path.normpath(PUBLIC_BASE,after)
+    fullAriane = ariane + arianeTag.replace("{dirName","{url}")\
+                                   .replace(currentDir,galleryBase)
+
+    if os.path.isdir(dirPath):
+        thumbsPath = os.path.join(dirPath,thumbsDir)
+
+        if not os.path.isdir(thumbsPath):
+            os.mkdir(thumbsPath)
+
+        with os.scandir(dirPath) as current:
+            for entry in current:
+                if entry.name.endswith(imagesAllowed):
+                    imageList[] = entry
+                elif entry.is_dir() and entry.name != noScan:
+                    dirs[] = directory.replace("{dirUri",\
+                                               os.path.join(galleryBase,entry)\
+                                               .replace("{dirName",entry)
+                """generate(os.path.join(dirPath,entry),entry,fullAriane,privateBaseList)"""
 
 def get_content(path):
     with open(path, "r") as content_file:
