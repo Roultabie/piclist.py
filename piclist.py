@@ -55,7 +55,7 @@ def generate(dirPath="",currentDir="",ariane="",privateBaseList="",dirs=""):
     dirPath = os.path.normpath(dirPath) if dirPath else GALLERY_PATH
     currentDir = currentDir if currentDir else GALLERY_DIR
 
-    if dirPath not GALLERY_PATH:
+    if dirPath != GALLERY_PATH:
         parentDir = directory.replace("{dirUri}","../").replace("{dirName}","..")
         after = os.path.basename(dirPath)
 
@@ -70,14 +70,17 @@ def generate(dirPath="",currentDir="",ariane="",privateBaseList="",dirs=""):
         if not os.path.isdir(thumbsPath):
             os.mkdir(thumbsPath)
 
+        imagesList = []
+        dirs = []
+
         with os.scandir(dirPath) as current:
             for entry in current:
                 if entry.name.endswith(imagesAllowed):
-                    imagesList[] = entry
+                    imagesList.append(entry)
                 elif entry.is_dir() and entry.name != noScan:
-                    dirs[] = directory.replace("{dirUri",\
+                    dirs.append(directory.replace("{dirUri",\
                                                os.path.join(galleryBase,entry)\
-                                               .replace("{dirName",entry)
+                                               .replace("{dirName",entry))
                 """generate(os.path.join(dirPath,entry),entry,fullAriane,privateBaseList)"""
 
     if type(imagesList) is list:
