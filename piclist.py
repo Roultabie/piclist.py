@@ -2,6 +2,8 @@ import os
 import sys
 import argparse
 import re
+from PIL import Image
+from PIL.exifTags import TAGS
 
 imagesAllowed = (".jpg",".png",".gif",)
 galleryDir = "gallery"
@@ -12,6 +14,7 @@ thumbWidth = [200]
 thumbRatio = [4, 3]
 publicBase = ""
 noScan = ()
+sort = ""
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--dir", type=str,\
@@ -70,12 +73,15 @@ def generate(dirPath="",currentDir="",ariane="",privateBaseList="",dirs=""):
         with os.scandir(dirPath) as current:
             for entry in current:
                 if entry.name.endswith(imagesAllowed):
-                    imageList[] = entry
+                    imagesList[] = entry
                 elif entry.is_dir() and entry.name != noScan:
                     dirs[] = directory.replace("{dirUri",\
                                                os.path.join(galleryBase,entry)\
                                                .replace("{dirName",entry)
                 """generate(os.path.join(dirPath,entry),entry,fullAriane,privateBaseList)"""
+
+    if type(imagesList) is list:
+        imagesList.sort(reverse=True) if sort = "desc" else test.sort()
 
 def get_content(path):
     with open(path, "r") as content_file:
@@ -83,3 +89,37 @@ def get_content(path):
 
 def get_template_path(file_name):
     return os.path.join(TEMPLATE_PATH,file_name)
+
+def get_image_type(image):
+    with Image.open(image) as im:
+        return(im.format)
+
+def get_exif(image):
+    elements = {}
+    with Image.open as im:
+        exif = im.getexif()
+        for tag, value in exif.items():
+            decoded = TAGS.get(tag,tag)
+            elements = value
+        return elements
+
+def create_thumb(image,path,name):
+    x,_y = image.size
+    if x > y:
+        hx = x / 2
+        hy1 = y / 2
+        hy2 = (y / 1.2) / 2 """on réduit la hauteur de 20%"""
+        box = (hx - hy2, hy1 - hy2, hx + hy2, hy1 + hy2)
+    elif y > x:
+        hy = y / 2
+        hx1 = x / 2
+        hx2 = (x / 1.2) / 2
+        box = (hx1 - hx2, hy - hx2, hx1 + hx2, hy + hx2)
+    else:
+        h1 = x / 2
+        h2 = (x / 1.2) / 2
+        xy1 = h1 - h2
+        xy2 = h1 + h2
+        box = (h1, h1, h2, h2)
+    image.crop(box)
+    image.save(os.path.join(path,name)
