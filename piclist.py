@@ -33,7 +33,7 @@ if os.path.exists(os.path.join(SCRIPT_PATH,"config.cfg")):
     config.read(os.path.join(SCRIPT_PATH,"config.cfg"))
 
 GALLERY_PATH = args.dir if args.dir else os.path.join(SCRIPT_PATH,galleryDir)
-PUBLIC_BASE = args.base.rstrip("/") if args.base else publicBase.rstrip("/")
+PUBLIC_BASE = args.base.rstrip("/") if args.base else publicBase
 GALLERY_DIR = os.path.basename(PUBLIC_BASE) if PUBLIC_BASE else galleryDir
 TEMPLATE_PATH = os.path.join(GALLERY_PATH,templateDir)\
     if os.path.isdir(os.path.join(GALLERY_PATH,templateDir)) else templateDir
@@ -86,35 +86,43 @@ def generate(dirPath="",currentDir="",ariane="",privateBaseList="",dirs=""):
         imageTags = []
         imagesList.sort(reverse=True) if sort == "desc" else imagesList.sort()
         for image in imagesList:
-            imageName = os.path.splitext(image)[0]
             with Image.open(os.path.join(dirPath,image)) as i:
                 if i.format == "JPEG":
                     exifDatas = exifTag
                     elements = {}
-                    if hasattr(i,"getexif"):
-                        exif = i.getexif()
+                    if hasattr(i,"_getexif"):
+                        exif = i._getexif()
                         for tag, value in exif.items():
                             decoded = TAGS.get(tag,tag)
-                            exifDatas = exifString.replace(decoded,value)
+                            if type(value) is str:
+                                exifDatas = exifDatas.replace(\
+                                            "{" + decoded + "}",value)
                         exifString = exifDatas
                 else:
                     exifString = ""
-                create_thumb(i,dirPath,imageName)
-                """
+                imageAttr = {"base_name": image,\
+                             "name": os.path.splitext(image),\
+                             "path": dirPath}
+                imageComment = ""
+                create_thumb(i,imageAttr)
                 imageTags.append(imageTag\
-                                 .replace("{thumbUri}",thumbUri)\
-                                 .replace("{thumbWidth}",thumbWidth)\
-                                 .replace("{thumbHeight}",thumbHeight)\
+                                 .replace("{thumbUri}",os.path.join(galleryBase, thumbsDir, image))\
+                                 .replace("{thumbWidth}",str(thumbWidth[0]))\
+                                 .replace("{thumbHeight}",str(thumbWidth[1]))\
                                  .replace("{imageUri}",os.path.join(galleryBase,image))\
-                                 .replace("{imageWidth}",width)\
-                                 .replace("{height}",height)\
+                                 .replace("{imageWidth}",str(i.size[0]))\
+                                 .replace("{height}",str(i.size[1]))\
                                  .replace("{imageComment}",imageComment)\
-                                 .replace("{imageExif}",exifString))"""
+                                 .replace("{imageExif}",exifString))
+
+def get_content(path):
+    with open(path, "r") as content_file:
+        return content_file.read()
 
 def get_template_path(file_name):
     return os.path.join(TEMPLATE_PATH,file_name)
 
-def create_thumb(image,path,name):
+def create_thumb(image,attr):
     x,y = image.size
     if x > y:
         hx = x / 2
@@ -132,7 +140,7 @@ def create_thumb(image,path,name):
     else:
         thumb = image
     thumb.thumbnail(thumbWidth)
-    thumb.save(os.path.join(path,thumbsDir,name) + "." + image.format,image.format)
-    return thumb.size
+    thumbUri = os.path.join(attr["path"],thumbsDir,attr["base_name"])
+    thumb.save(thumbUri,image.format)
 
 generate()
