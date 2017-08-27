@@ -5,12 +5,12 @@ import re
 from PIL import Image
 from PIL.exifTags import TAGS
 
-imagesAllowed = (".jpg",".png",".gif",)
+imagesAllowed = (".jpg",".jpeg",".png",".gif",)
 galleryDir = "gallery"
 templateDir = "template"
 thumbsDir = "_thumbs"
 thumbsPath = os.path.join(galleryDir,thumbsDir)
-thumbWidth = [200]
+thumbWidth = 200, 200
 thumbRatio = [4, 3]
 publicBase = ""
 noScan = ()
@@ -76,42 +76,50 @@ def generate(dirPath="",currentDir="",ariane="",privateBaseList="",dirs=""):
         with os.scandir(dirPath) as current:
             for entry in current:
                 if entry.name.endswith(imagesAllowed):
-                    imagesList.append(entry)
+                    imagesList.append(entry.name)
                 elif entry.is_dir() and entry.name != noScan:
-                    dirs.append(directory.replace("{dirUri",\
-                                               os.path.join(galleryBase,entry)\
-                                               .replace("{dirName",entry))
-                """generate(os.path.join(dirPath,entry),entry,fullAriane,privateBaseList)"""
+                    dirs.append(directory.replace("{dirUri}",\
+                                               os.path.join(galleryBase,entry.name))\
+                                               .replace("{dirName",entry.name))
+                """generate(os.path.join(dirPath,entry.name),entry,fullAriane,privateBaseList)"""
 
     if type(imagesList) is list:
-        imagesList.sort(reverse=True) if sort = "desc" else test.sort()
-
-def get_content(path):
-    with open(path, "r") as content_file:
-        return content_file.read()
+        imageTags = []
+        imagesList.sort(reverse=True) if sort == "desc" else imagesList.sort()
+        for image in imagesList:
+            imageName = os.path.splitext(image)[0]
+            with Image.open(os.path.join(dirPath,image)) as i:
+                if i.format == "JPEG":
+                    exifDatas = exifTag
+                    elements = {}
+                    exif = i.getexif()
+                    for tag, value in exif.items():
+                        decoded = TAGS.get(tag,tag)
+                        exifDatas = exifString.replace(decoded,value)
+                    exifString = exifDatas
+                else:
+                    exifString = ""
+                create_thumb(i,galleryBase,imageName)
+                imageTags.append(imageTag\
+                                 .replace("{thumbUri}",thumbUri)\
+                                 .replace("{thumbWidth}",thumbWidth)\
+                                 .replace("{thumbHeight}",thumbHeight)\
+                                 .replace("{imageUri}",os.path.join(galleryBase,image))\
+                                 .replace("{imageWidth}",width)\
+                                 .replace("{height}",height)\
+                                 .replace("{imageComment}",imageComment)\
+                                 .replace("{imageExif}",exifString))
 
 def get_template_path(file_name):
     return os.path.join(TEMPLATE_PATH,file_name)
 
-def get_image_type(image):
-    with Image.open(image) as im:
-        return(im.format)
-
-def get_exif(image):
-    elements = {}
-    with Image.open as im:
-        exif = im.getexif()
-        for tag, value in exif.items():
-            decoded = TAGS.get(tag,tag)
-            elements = value
-        return elements
-
 def create_thumb(image,path,name):
-    x,_y = image.size
+    x,y = image.size
     if x > y:
         hx = x / 2
         hy1 = y / 2
-        hy2 = (y / 1.2) / 2 """on réduit la hauteur de 20%"""
+        hy2 = (y / 1.2) / 2
+        """on réduit la hauteur de 20%"""
         box = (hx - hy2, hy1 - hy2, hx + hy2, hy1 + hy2)
     elif y > x:
         hy = y / 2
@@ -124,5 +132,7 @@ def create_thumb(image,path,name):
         xy1 = h1 - h2
         xy2 = h1 + h2
         box = (h1, h1, h2, h2)
-    image.crop(box)
-    image.save(os.path.join(path,name)
+    thumb = image.crop(box)
+    thumb.thumbnail(thumbRatio)
+    thumb.save(os.path.join(path,thumbsDir,name),image.format)
+    return thumb.size
