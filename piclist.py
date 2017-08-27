@@ -5,14 +5,14 @@ import re
 from PIL import Image
 from PIL.ExifTags import TAGS
 
-imagesAllowed = (".jpg",".jpeg",".png",".gif",)
-galleryDir = "gallery"
-templateDir = "template"
-thumbsDir = "_thumbs"
-thumbsPath = os.path.join(galleryDir,thumbsDir)
-thumbWidth = (200, 200)
-publicBase = ""
-noScan = ()
+images_allowed = (".jpg",".jpeg",".png",".gif",)
+gallery_dir = "gallery"
+template_dir = "template"
+thumbs_dir = "_thumbs"
+thumbs_path = os.path.join(gallery_dir,thumbs_dir)
+thumbs_width = (200, 200)
+public_base = ""
+no_scan = ()
 sort = ""
 
 parser = argparse.ArgumentParser()
@@ -32,107 +32,107 @@ if os.path.exists(os.path.join(SCRIPT_PATH,"config.cfg")):
     config = ConfigParser.ConfigParser
     config.read(os.path.join(SCRIPT_PATH,"config.cfg"))
 
-GALLERY_PATH = args.dir if args.dir else os.path.join(SCRIPT_PATH,galleryDir)
-PUBLIC_BASE = args.base.rstrip("/") if args.base else publicBase
-GALLERY_DIR = os.path.basename(PUBLIC_BASE) if PUBLIC_BASE else galleryDir
-TEMPLATE_PATH = os.path.join(GALLERY_PATH,templateDir)\
-    if os.path.isdir(os.path.join(GALLERY_PATH,templateDir)) else templateDir
+GALLERY_PATH = args.dir if args.dir else os.path.join(SCRIPT_PATH,gallery_dir)
+PUBLIC_BASE = args.base.rstrip("/") if args.base else public_base
+GALLERY_DIR = os.path.basename(PUBLIC_BASE) if PUBLIC_BASE else gallery_dir
+TEMPLATE_PATH = os.path.join(GALLERY_PATH,template_dir)\
+    if os.path.isdir(os.path.join(GALLERY_PATH,template_dir)) else template_dir
 
-def generate(dirPath="",currentDir="",ariane="",privateBaseList="",dirs=""):
+def generate(dir_path="",current_dir="",ariane="",private_base_list="",dirs=""):
     """Set content of html templates in respective vars"""
     page = get_content(get_template_path("index.html"))\
             if os.path.exists(get_template_path("index.html")) else ""
-    imageTag = get_content(get_template_path("imagetag.html"))\
+    image_tag = get_content(get_template_path("imagetag.html"))\
             if os.path.exists(get_template_path("imagetag.html")) else ""
     directory = get_content(get_template_path("directory.html"))\
             if os.path.exists(get_template_path("directory.html")) else ""
-    arianeTag = get_content(get_template_path("ariane.html"))\
+    ariane_tag = get_content(get_template_path("ariane.html"))\
             if os.path.exists(get_template_path("ariane.html")) else ""
-    exifTag = get_content(get_template_path("exif.html"))\
+    exif_tag = get_content(get_template_path("exif.html"))\
             if os.path.exists(get_template_path("exif.html")) else ""
 
-    dirPath = os.path.normpath(dirPath) if dirPath else GALLERY_PATH
-    currentDir = currentDir if currentDir else GALLERY_DIR
+    dir_path = os.path.normpath(dir_path) if dir_path else GALLERY_PATH
+    current_dir = current_dir if current_dir else GALLERY_DIR
 
-    if dirPath != GALLERY_PATH:
-        parentDir = directory.replace("{dirUri}","../").replace("{dirName}","..")
-        after = os.path.basename(dirPath)
+    if dir_path != GALLERY_PATH:
+        parent_dir = directory.replace("{dirUri}","../").replace("{dirName}","..")
+        after = os.path.basename(dir_path)
     else:
-        parentDir = ""
+        parent_dir = ""
         after = ""
 
-    """galleryBase = PUBLIC_BASE + after"""
-    galleryBase = os.path.join(PUBLIC_BASE,after)
-    fullAriane = ariane + arianeTag.replace("{dirName","{url}")\
-                                   .replace(currentDir,galleryBase)
+    """gallery_base = PUBLIC_BASE + after"""
+    gallery_base = os.path.join(PUBLIC_BASE,after)
+    full_ariane = ariane + ariane_tag.replace("{dirName","{url}")\
+                                   .replace(current_dir,gallery_base)
 
-    if os.path.isdir(dirPath):
-        thumbsPath = os.path.join(dirPath,thumbsDir)
+    if os.path.isdir(dir_path):
+        thumbs_path = os.path.join(dir_path,thumbs_dir)
 
-        if not os.path.isdir(thumbsPath):
-            os.mkdir(thumbsPath)
+        if not os.path.isdir(thumbs_path):
+            os.mkdir(thumbs_path)
 
-        imagesList = []
+        images_list = []
         dirs = []
 
-        with os.scandir(dirPath) as current:
+        with os.scandir(dir_path) as current:
             for entry in current:
-                if entry.name.endswith(imagesAllowed):
-                    imagesList.append(entry.name)
-                elif entry.is_dir() and entry.name != noScan and entry.name != thumbsDir:
+                if entry.name.endswith(images_allowed):
+                    images_list.append(entry.name)
+                elif entry.is_dir() and entry.name != no_scan and entry.name != thumbs_dir:
                     dirs.append(directory.replace("{dirUri}",\
-                                               os.path.join(galleryBase,entry.name))\
+                                               os.path.join(gallery_base,entry.name))\
                                                .replace("{dirName}",entry.name))
-                """generate(os.path.join(dirPath,entry.name),entry,fullAriane,privateBaseList)"""
+                """generate(os.path.join(dir_path,entry.name),entry,full_ariane,private_base_list)"""
 
-    if type(imagesList) is list:
-        imageTags = []
-        imagesList.sort(reverse=True) if sort == "desc" else imagesList.sort()
-        for image in imagesList:
-            with Image.open(os.path.join(dirPath,image)) as i:
+    if type(images_list) is list:
+        image_tags = []
+        images_list.sort(reverse=True) if sort == "desc" else images_list.sort()
+        for image in images_list:
+            with Image.open(os.path.join(dir_path,image)) as i:
                 if i.format == "JPEG":
-                    exifDatas = exifTag
+                    exif_datas = exif_tag
                     elements = {}
                     if hasattr(i,"_getexif"):
                         exif = i._getexif()
                         for tag, value in exif.items():
                             decoded = TAGS.get(tag,tag)
                             if type(value) is str:
-                                exifDatas = exifDatas.replace(\
+                                exif_datas = exif_datas.replace(\
                                             "{" + decoded + "}",value)
-                        exifString = exifDatas
+                        exif_string = exif_datas
                 else:
-                    exifString = ""
-                imageAttr = {"base_name": image,\
+                    exif_string = ""
+                image_attr = {"base_name": image,\
                              "name": os.path.splitext(image),\
-                             "path": dirPath}
-                imageComment = ""
-                if not os.path.isfile(os.path.join(dirPath,thumbsDir,image))\
+                             "path": dir_path}
+                image_comment = ""
+                if not os.path.isfile(os.path.join(dir_path,thumbs_dir,image))\
                    or args.regenerate:
-                    create_thumb(i,imageAttr)
-                imageTags.append(imageTag\
-                                 .replace("{thumbUri}",os.path.join(galleryBase, thumbsDir, image))\
-                                 .replace("{thumbWidth}",str(thumbWidth[0]))\
-                                 .replace("{thumbHeight}",str(thumbWidth[1]))\
-                                 .replace("{imageUri}",os.path.join(galleryBase,image))\
+                    create_thumb(i,image_attr)
+                image_tags.append(image_tag\
+                                 .replace("{thumbUri}",os.path.join(gallery_base, thumbs_dir, image))\
+                                 .replace("{thumbsWidth}",str(thumbs_width[0]))\
+                                 .replace("{thumbHeight}",str(thumbs_width[1]))\
+                                 .replace("{imageUri}",os.path.join(gallery_base,image))\
                                  .replace("{imageWidth}",str(i.size[0]))\
                                  .replace("{height}",str(i.size[1]))\
-                                 .replace("{imageComment}",imageComment)\
-                                 .replace("{imageExif}",exifString))
+                                 .replace("{imageComment}",image_comment)\
+                                 .replace("{imageExif}",exif_string))
 
         comment = get_content(get_template_path("comment.html"))\
             if os.path.exists(get_template_path("comment.html")) else ""
-        images = "\n".join(imageTags) if type(imageTags) is list else ""
-        subDirs = "\n".join(dirs) if type(dirs) is list else ""
+        images = "\n".join(image_tags) if type(image_tags) is list else ""
+        sub_dirs = "\n".join(dirs) if type(dirs) is list else ""
         page = page.replace("{galleryPath}",PUBLIC_BASE)\
                    .replace("{images}",images)\
-                   .replace("{parentDir}",parentDir)\
-                   .replace("{subDirs}",subDirs)\
+                   .replace("{parentDir}",parent_dir)\
+                   .replace("{subDirs}",sub_dirs)\
                    .replace("{ariane}", ariane)\
-                   .replace("{currentDir}",currentDir)\
+                   .replace("{currentDir}",current_dir)\
                    .replace("{comment}",comment)
 
-        with open(os.path.join(dirPath,"index.html"),"w") as file:
+        with open(os.path.join(dir_path,"index.html"),"w") as file:
             file.write(page)
             file.close
 
@@ -160,8 +160,8 @@ def create_thumb(image,attr):
         thumb = image.crop(box)
     else:
         thumb = image
-    thumb.thumbnail(thumbWidth)
-    thumbUri = os.path.join(attr["path"],thumbsDir,attr["base_name"])
+    thumb.thumbnail(thumbs_width)
+    thumbUri = os.path.join(attr["path"],thumbs_dir,attr["base_name"])
     thumb.save(thumbUri,image.format)
 
 generate()
