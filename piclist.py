@@ -79,10 +79,10 @@ def generate(dirPath="",currentDir="",ariane="",privateBaseList="",dirs=""):
             for entry in current:
                 if entry.name.endswith(imagesAllowed):
                     imagesList.append(entry.name)
-                elif entry.is_dir() and entry.name != noScan:
+                elif entry.is_dir() and entry.name != noScan and entry.name != thumbsDir:
                     dirs.append(directory.replace("{dirUri}",\
                                                os.path.join(galleryBase,entry.name))\
-                                               .replace("{dirName",entry.name))
+                                               .replace("{dirName}",entry.name))
                 """generate(os.path.join(dirPath,entry.name),entry,fullAriane,privateBaseList)"""
 
     if type(imagesList) is list:
