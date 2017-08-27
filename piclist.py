@@ -1,7 +1,6 @@
 import os
 import sys
 import argparse
-import re
 from PIL import Image
 from PIL.ExifTags import TAGS
 
@@ -39,6 +38,7 @@ TEMPLATE_PATH = os.path.join(GALLERY_PATH,template_dir)\
     if os.path.isdir(os.path.join(GALLERY_PATH,template_dir)) else template_dir
 
 def generate(dir_path="",current_dir="",ariane="",private_base_list="",dirs=""):
+
     """Set content of html templates in respective vars"""
     page = get_content(get_template_path("index.html"))\
             if os.path.exists(get_template_path("index.html")) else ""
@@ -55,13 +55,13 @@ def generate(dir_path="",current_dir="",ariane="",private_base_list="",dirs=""):
     current_dir = current_dir if current_dir else GALLERY_DIR
 
     if dir_path != GALLERY_PATH:
-        parent_dir = directory.replace("{dirUri}","../").replace("{dirName}","..")
+        parent_dir = directory.replace("{dirUri}","../")\
+                              .replace("{dirName}","..")
         after = os.path.basename(dir_path)
     else:
         parent_dir = ""
         after = ""
 
-    """gallery_base = PUBLIC_BASE + after"""
     gallery_base = os.path.join(PUBLIC_BASE,after)
     full_ariane = ariane + ariane_tag.replace("{dirName","{url}")\
                                    .replace(current_dir,gallery_base)
@@ -79,11 +79,13 @@ def generate(dir_path="",current_dir="",ariane="",private_base_list="",dirs=""):
             for entry in current:
                 if entry.name.endswith(images_allowed):
                     images_list.append(entry.name)
-                elif entry.is_dir() and entry.name != no_scan and entry.name != thumbs_dir:
-                    dirs.append(directory.replace("{dirUri}",\
-                                               os.path.join(gallery_base,entry.name))\
-                                               .replace("{dirName}",entry.name))
-                """generate(os.path.join(dir_path,entry.name),entry,full_ariane,private_base_list)"""
+                elif entry.is_dir()\
+                        and entry.name != no_scan\
+                        and entry.name != thumbs_dir:
+                    dirs.append(\
+                          directory.replace("{dirUri}",\
+                                        os.path.join(gallery_base,entry.name))\
+                                   .replace("{dirName}",entry.name))
 
     if type(images_list) is list:
         image_tags = []
@@ -111,14 +113,16 @@ def generate(dir_path="",current_dir="",ariane="",private_base_list="",dirs=""):
                    or args.regenerate:
                     create_thumb(i,image_attr)
                 image_tags.append(image_tag\
-                                 .replace("{thumbUri}",os.path.join(gallery_base, thumbs_dir, image))\
-                                 .replace("{thumbsWidth}",str(thumbs_width[0]))\
-                                 .replace("{thumbHeight}",str(thumbs_width[1]))\
-                                 .replace("{imageUri}",os.path.join(gallery_base,image))\
-                                 .replace("{imageWidth}",str(i.size[0]))\
-                                 .replace("{height}",str(i.size[1]))\
-                                 .replace("{imageComment}",image_comment)\
-                                 .replace("{imageExif}",exif_string))
+                            .replace("{thumbUri}",\
+                                os.path.join(gallery_base, thumbs_dir, image))\
+                            .replace("{thumbsWidth}",str(thumbs_width[0]))\
+                            .replace("{thumbHeight}",str(thumbs_width[1]))\
+                            .replace("{imageUri}",\
+                                os.path.join(gallery_base,image))\
+                            .replace("{imageWidth}",str(i.size[0]))\
+                            .replace("{height}",str(i.size[1]))\
+                            .replace("{imageComment}",image_comment)\
+                            .replace("{imageExif}",exif_string))
 
         comment = get_content(get_template_path("comment.html"))\
             if os.path.exists(get_template_path("comment.html")) else ""
