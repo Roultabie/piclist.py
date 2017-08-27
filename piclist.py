@@ -118,7 +118,7 @@ def generate(dir_path="",current_dir="",ariane="",private_base_list="",dirs=""):
                             .replace("{thumbsWidth}",str(thumbs_width[0]))\
                             .replace("{thumbHeight}",str(thumbs_width[1]))\
                             .replace("{imageUri}",\
-                                os.path.join(gallery_base,image))\
+                                        os.path.join(gallery_base,image))\
                             .replace("{imageWidth}",str(i.size[0]))\
                             .replace("{height}",str(i.size[1]))\
                             .replace("{imageComment}",image_comment)\
@@ -141,13 +141,16 @@ def generate(dir_path="",current_dir="",ariane="",private_base_list="",dirs=""):
             file.close
 
 def get_content(path):
+    """Return content of wanted file"""
     with open(path, "r") as content_file:
         return content_file.read()
 
 def get_template_path(file_name):
+    """Concat template path and file"""
     return os.path.join(TEMPLATE_PATH,file_name)
 
 def create_thumb(image,attr):
+    """Create square thumbs from the middle of picture"""
     x,y = image.size
     if x > y:
         hx = x / 2
