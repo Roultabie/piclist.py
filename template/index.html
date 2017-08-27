@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+    <head>
+    <meta charset="utf-8">
+    <title>piclist</title>
+    <link rel="apple-touch-icon" sizes="57x57" href="{galleryPath}/_template/favicons/apple-touch-icon-57x57.png?v=m2Pvrjp04Q">
+    <link rel="apple-touch-icon" sizes="60x60" href="{galleryPath}/_template/favicons/apple-touch-icon-60x60.png?v=m2Pvrjp04Q">
+    <link rel="apple-touch-icon" sizes="72x72" href="{galleryPath}/_template/favicons/apple-touch-icon-72x72.png?v=m2Pvrjp04Q">
+    <link rel="apple-touch-icon" sizes="76x76" href="{galleryPath}/_template/favicons/apple-touch-icon-76x76.png?v=m2Pvrjp04Q">
+    <link rel="apple-touch-icon" sizes="114x114" href="{galleryPath}/_template/favicons/apple-touch-icon-114x114.png?v=m2Pvrjp04Q">
+    <link rel="apple-touch-icon" sizes="120x120" href="{galleryPath}/_template/favicons/apple-touch-icon-120x120.png?v=m2Pvrjp04Q">
+    <link rel="apple-touch-icon" sizes="144x144" href="{galleryPath}/_template/favicons/apple-touch-icon-144x144.png?v=m2Pvrjp04Q">
+    <link rel="apple-touch-icon" sizes="152x152" href="{galleryPath}/_template/favicons/apple-touch-icon-152x152.png?v=m2Pvrjp04Q">
+    <link rel="apple-touch-icon" sizes="180x180" href="{galleryPath}/_template/favicons/apple-touch-icon-180x180.png?v=m2Pvrjp04Q">
+    <link rel="icon" type="image/png" href="{galleryPath}/_template/favicons/favicon-32x32.png?v=m2Pvrjp04Q" sizes="32x32">
+    <link rel="icon" type="image/png" href="{galleryPath}/_template/favicons/android-chrome-192x192.png?v=m2Pvrjp04Q" sizes="192x192">
+    <link rel="icon" type="image/png" href="{galleryPath}/_template/favicons/favicon-96x96.png?v=m2Pvrjp04Q" sizes="96x96">
+    <link rel="icon" type="image/png" href="{galleryPath}/_template/favicons/favicon-16x16.png?v=m2Pvrjp04Q" sizes="16x16">
+    <link rel="manifest" href="{galleryPath}/_template/favicons/manifest.json?v=m2Pvrjp04Q">
+    <link rel="shortcut icon" href="{galleryPath}/_template/favicons/favicon.ico?v=m2Pvrjp04Q">
+    <meta name="apple-mobile-web-app-title" content="Piclist">
+    <meta name="application-name" content="Piclist">
+    <meta name="msapplication-TileColor" content="#272727">
+    <meta name="msapplication-TileImage" content="{galleryPath}/_template/favicons/mstile-144x144.png?v=m2Pvrjp04Q">
+    <meta name="theme-color" content="#ffffff">
+    <style type="text/css">
+    body {
+        background-color: #272727;
+        padding: 0;
+        margin: 1px auto;
+        width: 1212px;
+        font-family: "DejaVu Sans", "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+        font-size: .8em;
+    }
+    #logo {
+        width: 32px;
+        height: 32px;
+        vertical-align: sub;
+        margin: 0;
+    }
+    #moto {
+        display: inline-block;
+        font-family: "DejaVu Sans Light", "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+        color: lightgrey;
+        font-size: 28px;
+    }
+    #ariane, #ariane li {
+        float: left;
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+        font-style: italic;
+    }
+    #ariane {
+        width: 100%;
+        padding: 10px 5px 15px 5px;
+        border-top: 1px solid grey;
+    }
+    #ariane li:last-child {
+        color: white;
+        text-shadow: 0px 0px 9px #888;
+    }
+    #ariane a, footer a {
+        color: darkgrey;
+        text-decoration: none;
+        transition-property: color, text-shadow;
+        transition-duration: 600ms;
+    }
+    #ariane a:hover, footer a:hover {
+        color: lightgrey;
+        text-shadow: 0px 0px 9px #888;
+    }
+    #ariane a:after {
+        content: '>';
+        margin-left: 3px;
+        margin-right: 3px;
+        color: grey;
+    }
+    #gallery {
+        display: block;
+        width: 100%;
+    }
+    #gallery ul, li {
+        margin: 0;
+        padding: 0;
+    }
+    #gallery .directory, #gallery .pic,
+    #gallery .directory a, #gallery .pic a,
+    #gallery .pic .comment, #gallery .pic .exif {
+        width: 200px;
+        max-width: 200px;
+        height: 200px;
+        max-height: 200px;
+    }
+    #gallery .directory a, #gallery .pic a,
+    #gallery .pic .comment, #gallery .pic .exif {
+        display: table-cell;
+        text-decoration: none;
+        word-wrap: break-word;
+        white-space: pre-line;
+    }
+    #gallery .directory, #gallery .pic {
+        display: block;
+        margin: 1px;
+        text-align: center;
+        float: left;
+        position: relative;
+        overflow: hidden;
+    }
+    #gallery .directory a {
+        vertical-align: middle;
+        background-color: transparent;
+        text-align: center;
+        font-weight: bold;
+    }
+    #gallery img {
+        position: absolute;
+        display: block;
+        top: 0;
+        bottom:0;
+        left: 0;
+        right:0;
+        margin: auto;
+    }
+    #gallery .exif {
+        position: relative;
+        margin: 5px;
+        line-height: 12px;
+        font-weight: normal;
+        vertical-align: bottom;
+        text-align: left;
+        color: rgba(0,0,0,0);
+        transition-property: color, text-shadow;
+        transition-duration: 300ms;
+    }
+    #gallery a:hover .exif {
+        color: white;
+        text-shadow: 0px 0px 3px #272727;
+        text-decoration: none;
+    }
+    #gallery .directory {
+        background-color: darkgrey;
+    }
+    #gallery .directory a {
+        text-align: center;
+        background-color: transparent;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    footer {
+        clear: both;
+        display: block;
+        width: 100%;
+        font-size: .8em;
+        text-align: center;
+        color: grey;
+        padding-top: 25px;
+    }
+    </style>
+</head>
+<body>
+<header>
+    <svg id="logo" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+       xmlns:svg="http://www.w3.org/2000/svg"
+       xmlns="http://www.w3.org/2000/svg"
+       viewBox="0 0 378.57144 378.57143"
+       id="logo">
+      <circle
+         cx="189.28572"
+         cy="189.28572"
+         r="189.28572"
+         fill="#1b1b1b" />
+      <path
+         d="m 110.26144,71.604014 0,289.739726 a 189.28572,189.28572 0 0 0 40.21485,13.25 l 0,-84.97217 50.5664,0 c 33.31305,0 58.4648,-9.19596 75.45313,-27.58789 17.12105,-18.39192 25.68164,-45.57291 25.68164,-81.54296 0,-35.64454 -8.56059,-62.66277 -25.68164,-81.054676 -16.98833,-18.55469 -42.14008,-27.83203 -75.45313,-27.83203 l -90.78125,0 z m 40.21485,40.527326 50.5664,0 c 18.71371,0 33.18086,5.94076 43.40039,17.82227 10.21954,11.88151 15.33008,28.72721 15.33008,50.53711 0,21.97265 -5.11054,38.89973 -15.33008,50.78124 -10.21953,11.88152 -24.68668,17.82227 -43.40039,17.82227 l -50.5664,0 0,-136.96289 z"
+         fill="#ffffff" />
+    </svg><h1 id="moto">iclist</h1>
+    <ul id="ariane">
+        {ariane}
+        <li>{currentDir}</li>
+    </ul>
+</header>
+<article id="gallery">
+    <ul>
+{parentDir}
+{subDirs}
+{images}
+    </ul>
+</article>
+<footer><a href="https://github.com/Roultabie/piclist">piclist</a> by <a href="http://daniel.gorgones.net">Daniel Douat</a></footer>
+</body>
+</html>
