@@ -53,10 +53,13 @@ def generate(dirPath="",currentDir="",ariane="",privateBaseList="",dirs=""):
 
     dirPath = os.path.normpath(dirPath) if dirPath else GALLERY_PATH
     currentDir = currentDir if currentDir else GALLERY_DIR
-    after = ""
+
     if dirPath != GALLERY_PATH:
         parentDir = directory.replace("{dirUri}","../").replace("{dirName}","..")
         after = os.path.basename(dirPath)
+    else:
+        parentDir = ""
+        after = ""
 
     """galleryBase = PUBLIC_BASE + after"""
     galleryBase = os.path.join(PUBLIC_BASE,after)
@@ -114,6 +117,22 @@ def generate(dirPath="",currentDir="",ariane="",privateBaseList="",dirs=""):
                                  .replace("{height}",str(i.size[1]))\
                                  .replace("{imageComment}",imageComment)\
                                  .replace("{imageExif}",exifString))
+
+        comment = get_content(get_template_path("comment.html"))\
+            if os.path.exists(get_template_path("comment.html")) else ""
+        images = "\n".join(imageTags) if type(imageTags) is list else ""
+        subDirs = "\n".join(dirs) if type(dirs) is list else ""
+        page = page.replace("{galleryPath}",PUBLIC_BASE)\
+                   .replace("{images}",images)\
+                   .replace("{parentDir}",parentDir)\
+                   .replace("{subDirs}",subDirs)\
+                   .replace("{ariane}", ariane)\
+                   .replace("{currentDir}",currentDir)\
+                   .replace("{comment}",comment)
+
+        with open(os.path.join(dirPath,"index.html"),"w") as file:
+            file.write(page)
+            file.close
 
 def get_content(path):
     with open(path, "r") as content_file:
