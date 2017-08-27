@@ -107,7 +107,9 @@ def generate(dirPath="",currentDir="",ariane="",privateBaseList="",dirs=""):
                              "name": os.path.splitext(image),\
                              "path": dirPath}
                 imageComment = ""
-                create_thumb(i,imageAttr)
+                if not os.path.isfile(os.path.join(dirPath,thumbsDir,image))\
+                   or args.regenerate:
+                    create_thumb(i,imageAttr)
                 imageTags.append(imageTag\
                                  .replace("{thumbUri}",os.path.join(galleryBase, thumbsDir, image))\
                                  .replace("{thumbWidth}",str(thumbWidth[0]))\
