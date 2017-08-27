@@ -3,15 +3,14 @@ import sys
 import argparse
 import re
 from PIL import Image
-from PIL.exifTags import TAGS
+from PIL.ExifTags import TAGS
 
 imagesAllowed = (".jpg",".jpeg",".png",".gif",)
 galleryDir = "gallery"
 templateDir = "template"
 thumbsDir = "_thumbs"
 thumbsPath = os.path.join(galleryDir,thumbsDir)
-thumbWidth = 200, 200
-thumbRatio = [4, 3]
+thumbWidth = (500, 500)
 publicBase = ""
 noScan = ()
 sort = ""
@@ -54,13 +53,13 @@ def generate(dirPath="",currentDir="",ariane="",privateBaseList="",dirs=""):
 
     dirPath = os.path.normpath(dirPath) if dirPath else GALLERY_PATH
     currentDir = currentDir if currentDir else GALLERY_DIR
-
+    after = ""
     if dirPath != GALLERY_PATH:
         parentDir = directory.replace("{dirUri}","../").replace("{dirName}","..")
         after = os.path.basename(dirPath)
 
     """galleryBase = PUBLIC_BASE + after"""
-    galleryBase = os.path.normpath(PUBLIC_BASE,after)
+    galleryBase = os.path.join(PUBLIC_BASE,after)
     fullAriane = ariane + arianeTag.replace("{dirName","{url}")\
                                    .replace(currentDir,galleryBase)
 
@@ -92,14 +91,16 @@ def generate(dirPath="",currentDir="",ariane="",privateBaseList="",dirs=""):
                 if i.format == "JPEG":
                     exifDatas = exifTag
                     elements = {}
-                    exif = i.getexif()
-                    for tag, value in exif.items():
-                        decoded = TAGS.get(tag,tag)
-                        exifDatas = exifString.replace(decoded,value)
-                    exifString = exifDatas
+                    if hasattr(i,"getexif"):
+                        exif = i.getexif()
+                        for tag, value in exif.items():
+                            decoded = TAGS.get(tag,tag)
+                            exifDatas = exifString.replace(decoded,value)
+                        exifString = exifDatas
                 else:
                     exifString = ""
-                create_thumb(i,galleryBase,imageName)
+                create_thumb(i,dirPath,imageName)
+                """
                 imageTags.append(imageTag\
                                  .replace("{thumbUri}",thumbUri)\
                                  .replace("{thumbWidth}",thumbWidth)\
@@ -108,7 +109,7 @@ def generate(dirPath="",currentDir="",ariane="",privateBaseList="",dirs=""):
                                  .replace("{imageWidth}",width)\
                                  .replace("{height}",height)\
                                  .replace("{imageComment}",imageComment)\
-                                 .replace("{imageExif}",exifString))
+                                 .replace("{imageExif}",exifString))"""
 
 def get_template_path(file_name):
     return os.path.join(TEMPLATE_PATH,file_name)
@@ -121,18 +122,17 @@ def create_thumb(image,path,name):
         hy2 = (y / 1.2) / 2
         """on réduit la hauteur de 20%"""
         box = (hx - hy2, hy1 - hy2, hx + hy2, hy1 + hy2)
+        thumb = image.crop(box)
     elif y > x:
         hy = y / 2
         hx1 = x / 2
         hx2 = (x / 1.2) / 2
         box = (hx1 - hx2, hy - hx2, hx1 + hx2, hy + hx2)
+        thumb = image.crop(box)
     else:
-        h1 = x / 2
-        h2 = (x / 1.2) / 2
-        xy1 = h1 - h2
-        xy2 = h1 + h2
-        box = (h1, h1, h2, h2)
-    thumb = image.crop(box)
-    thumb.thumbnail(thumbRatio)
-    thumb.save(os.path.join(path,thumbsDir,name),image.format)
+        thumb = image
+    thumb.thumbnail(thumbWidth)
+    thumb.save(os.path.join(path,thumbsDir,name) + "." + image.format,image.format)
     return thumb.size
+
+generate()
