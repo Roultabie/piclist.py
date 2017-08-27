@@ -22,6 +22,8 @@ parser.add_argument("--base", type=str,\
 parser.add_argument("-r", "--regenerate",\
                     help="force la génération complète du répertoire",\
                     action="store_true")
+parser.add_argument("--parents", type=str,\
+                    help="indique les répertoire parents sous la forme parent/dir")
 args = parser.parse_args()
 
 SCRIPT_PATH = os.path.abspath(__file__)
@@ -32,7 +34,7 @@ if os.path.exists(os.path.join(SCRIPT_PATH,"config.cfg")):
     config.read(os.path.join(SCRIPT_PATH,"config.cfg"))
 
 GALLERY_PATH = args.dir if args.dir else os.path.join(SCRIPT_PATH,gallery_dir)
-PUBLIC_BASE = args.base.rstrip("/") if args.base else public_base
+PUBLIC_BASE = args.base.rstrip(os.path.sep) if args.base else public_base
 GALLERY_DIR = os.path.basename(PUBLIC_BASE) if PUBLIC_BASE else gallery_dir
 TEMPLATE_PATH = os.path.join(GALLERY_PATH,template_dir)\
     if os.path.isdir(os.path.join(GALLERY_PATH,template_dir)) else template_dir
@@ -52,19 +54,25 @@ def generate(dir_path="",current_dir="",ariane="",private_base_list="",dirs=""):
             if os.path.exists(get_template_path("exif.html")) else ""
 
     dir_path = os.path.normpath(dir_path) if dir_path else GALLERY_PATH
-    current_dir = current_dir if current_dir else GALLERY_DIR
+    dir_path = dir_path.rstrip(os.path.sep)
+    current_dir = os.path.basename(dir_path)
+    dirs = []
 
-    if dir_path != GALLERY_PATH:
-        parent_dir = directory.replace("{dirUri}","../")\
-                              .replace("{dirName}","..")
-        after = os.path.basename(dir_path)
+    if args.parents:
+        ariane = []
+        ariane_parts = args.parents.split(os.path.sep)
+        nb_back = len(ariane_parts)
+        for element in ariane_parts:
+            ariane.append(ariane_tag.replace("{dirName}",element)\
+                                   .replace("{url}","../" * nb_back))
+            nb_back -= 1
+
+        dirs.append(directory.replace("{dirUri}","../")\
+                              .replace("{dirName}",".."))
+    if type(ariane) is list:
+        full_ariane = "".join(ariane)
     else:
-        parent_dir = ""
-        after = ""
-
-    gallery_base = os.path.join(PUBLIC_BASE,after)
-    full_ariane = ariane + ariane_tag.replace("{dirName","{url}")\
-                                   .replace(current_dir,gallery_base)
+        full_ariane = ""
 
     if os.path.isdir(dir_path):
         thumbs_path = os.path.join(dir_path,thumbs_dir)
@@ -73,7 +81,6 @@ def generate(dir_path="",current_dir="",ariane="",private_base_list="",dirs=""):
             os.mkdir(thumbs_path)
 
         images_list = []
-        dirs = []
 
         with os.scandir(dir_path) as current:
             for entry in current:
@@ -84,7 +91,7 @@ def generate(dir_path="",current_dir="",ariane="",private_base_list="",dirs=""):
                         and entry.name != thumbs_dir:
                     dirs.append(\
                           directory.replace("{dirUri}",\
-                                        os.path.join(gallery_base,entry.name))\
+                                        os.path.join(entry.name))\
                                    .replace("{dirName}",entry.name))
 
     if type(images_list) is list:
@@ -114,11 +121,10 @@ def generate(dir_path="",current_dir="",ariane="",private_base_list="",dirs=""):
                     create_thumb(i,image_attr)
                 image_tags.append(image_tag\
                             .replace("{thumbUri}",\
-                                os.path.join(gallery_base, thumbs_dir, image))\
+                                os.path.join(thumbs_dir, image))\
                             .replace("{thumbsWidth}",str(thumbs_width[0]))\
                             .replace("{thumbHeight}",str(thumbs_width[1]))\
-                            .replace("{imageUri}",\
-                                        os.path.join(gallery_base,image))\
+                            .replace("{imageUri}",image)\
                             .replace("{imageWidth}",str(i.size[0]))\
                             .replace("{height}",str(i.size[1]))\
                             .replace("{imageComment}",image_comment)\
@@ -130,9 +136,8 @@ def generate(dir_path="",current_dir="",ariane="",private_base_list="",dirs=""):
         sub_dirs = "\n".join(dirs) if type(dirs) is list else ""
         page = page.replace("{galleryPath}",PUBLIC_BASE)\
                    .replace("{images}",images)\
-                   .replace("{parentDir}",parent_dir)\
                    .replace("{subDirs}",sub_dirs)\
-                   .replace("{ariane}", ariane)\
+                   .replace("{ariane}", full_ariane)\
                    .replace("{currentDir}",current_dir)\
                    .replace("{comment}",comment)
 
