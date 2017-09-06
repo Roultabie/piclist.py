@@ -11,7 +11,7 @@ thumbs_dir = "_thumbs"
 thumbs_path = os.path.join(gallery_dir,thumbs_dir)
 thumbs_width = (200, 200)
 public_base = ""
-no_scan = ()
+no_scan = ("_template")
 sort = ""
 
 parser = argparse.ArgumentParser()
@@ -22,8 +22,6 @@ parser.add_argument("--base", type=str,\
 parser.add_argument("-r", "--regenerate",\
                     help="force la génération complète du répertoire",\
                     action="store_true")
-parser.add_argument("--parents", type=str,\
-                    help="indique les répertoire parents sous la forme parent/dir")
 args = parser.parse_args()
 
 SCRIPT_PATH = os.path.abspath(__file__)
@@ -38,6 +36,9 @@ PUBLIC_BASE = args.base.rstrip(os.path.sep) if args.base else public_base
 GALLERY_DIR = os.path.basename(PUBLIC_BASE) if PUBLIC_BASE else gallery_dir
 TEMPLATE_PATH = os.path.join(GALLERY_PATH,template_dir)\
     if os.path.isdir(os.path.join(GALLERY_PATH,template_dir)) else template_dir
+SUB_DIRS = GALLERY_PATH.split(GALLERY_DIR)[1].split(os.path.sep)
+SUB_DIRS.insert(0,GALLERY_DIR)
+SUB_DIRS = list(filter(None,SUB_DIRS))
 
 def generate(dir_path="",current_dir="",ariane="",private_base_list="",dirs=""):
 
@@ -57,22 +58,18 @@ def generate(dir_path="",current_dir="",ariane="",private_base_list="",dirs=""):
     dir_path = dir_path.rstrip(os.path.sep)
     current_dir = os.path.basename(dir_path)
     dirs = []
-
-    if args.parents:
+    if len(SUB_DIRS) > 1:
         ariane = []
-        ariane_parts = args.parents.split(os.path.sep)
-        nb_back = len(ariane_parts)
-        for element in ariane_parts:
+        nb_back = len(SUB_DIRS) - 1
+        for element in SUB_DIRS:
             ariane.append(ariane_tag.replace("{dirName}",element)\
                                    .replace("{url}","../" * nb_back))
             nb_back -= 1
-
         dirs.append(directory.replace("{dirUri}","../")\
-                              .replace("{dirName}",".."))
-    if type(ariane) is list:
-        full_ariane = "".join(ariane)
+                          .replace("{dirName}",".."))
     else:
-        full_ariane = ""
+        ariane = [ariane_tag.replace("{dirName}",GALLERY_DIR)\
+                            .replace("{url}","")]
 
     if os.path.isdir(dir_path):
         thumbs_path = os.path.join(dir_path,thumbs_dir)
@@ -137,7 +134,7 @@ def generate(dir_path="",current_dir="",ariane="",private_base_list="",dirs=""):
         page = page.replace("{galleryPath}",PUBLIC_BASE)\
                    .replace("{images}",images)\
                    .replace("{subDirs}",sub_dirs)\
-                   .replace("{ariane}", full_ariane)\
+                   .replace("{ariane}", "".join(ariane))\
                    .replace("{currentDir}",current_dir)\
                    .replace("{comment}",comment)
 
