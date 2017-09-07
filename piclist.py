@@ -24,7 +24,7 @@ parser.add_argument("-r", "--regenerate",\
                     action="store_true")
 args = parser.parse_args()
 
-SCRIPT_PATH = os.path.abspath(__file__)
+SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 
 if os.path.exists(os.path.join(SCRIPT_PATH,"config.cfg")):
     import configparser
@@ -35,7 +35,8 @@ GALLERY_PATH = args.dir if args.dir else os.path.join(SCRIPT_PATH,gallery_dir)
 PUBLIC_BASE = args.base.rstrip(os.path.sep) if args.base else public_base
 GALLERY_DIR = os.path.basename(PUBLIC_BASE) if PUBLIC_BASE else gallery_dir
 TEMPLATE_PATH = os.path.join(GALLERY_PATH,template_dir)\
-    if os.path.isdir(os.path.join(GALLERY_PATH,template_dir)) else template_dir
+    if os.path.isdir(os.path.join(GALLERY_PATH,template_dir))\
+    else os.path.join(SCRIPT_PATH,template_dir)
 SUB_DIRS = GALLERY_PATH.split(GALLERY_DIR)[1].split(os.path.sep)
 SUB_DIRS.insert(0,GALLERY_DIR)
 SUB_DIRS = list(filter(None,SUB_DIRS))
@@ -172,5 +173,6 @@ def create_thumb(image,attr):
     thumb.thumbnail(thumbs_width)
     thumbUri = os.path.join(attr["path"],thumbs_dir,attr["base_name"])
     thumb.save(thumbUri,image.format)
+
 
 generate()
