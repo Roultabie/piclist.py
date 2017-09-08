@@ -19,10 +19,16 @@ parser.add_argument("--dir", type=str,\
                     help="spécifie le répertoire à traiter")
 parser.add_argument("--base", type=str,\
                     help="spécifie la raçine publique de la galerie")
+parser.add_argument("--file", type=str,\
+                    help="Uniquement avec INCRON et le FLAG $# ")
 parser.add_argument("-r", "--regenerate",\
                     help="force la génération complète du répertoire",\
                     action="store_true")
 args = parser.parse_args()
+
+"""Incrond protection"""
+if args.file and not args.file.endswith(images_allowed):
+    quit()
 
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 
@@ -34,7 +40,7 @@ if os.path.exists(os.path.join(SCRIPT_PATH,"config.cfg")):
 GALLERY_PATH = args.dir if args.dir else os.path.join(SCRIPT_PATH,gallery_dir)
 PUBLIC_BASE = args.base.rstrip(os.path.sep) if args.base else public_base
 GALLERY_DIR = os.path.basename(PUBLIC_BASE) if PUBLIC_BASE else gallery_dir
-TEMPLATE_PATH = os.path.join(GALLERY_PATH,template_dir)\
+TEMPLATE_PATH = os.path.join(GALLERY_PATH,'_' + template_dir)\
     if os.path.isdir(os.path.join(GALLERY_PATH,template_dir))\
     else os.path.join(SCRIPT_PATH,template_dir)
 SUB_DIRS = GALLERY_PATH.split(GALLERY_DIR)[1].split(os.path.sep)
@@ -91,6 +97,7 @@ def generate(dir_path="",current_dir="",ariane="",private_base_list="",dirs=""):
                           directory.replace("{dirUri}",\
                                         os.path.join(entry.name))\
                                    .replace("{dirName}",entry.name))
+                    make_incron(os.path.join(dir_path,entry.name))
 
     if type(images_list) is list:
         image_tags = []
@@ -173,6 +180,5 @@ def create_thumb(image,attr):
     thumb.thumbnail(thumbs_width)
     thumbUri = os.path.join(attr["path"],thumbs_dir,attr["base_name"])
     thumb.save(thumbUri,image.format)
-
 
 generate()
